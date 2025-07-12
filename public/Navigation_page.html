@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title>Navigation_page</title>
+        <link rel="stylesheet" href="style.css">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    </head>
+    <body>
+        <div style="position: fixed; top: 10px; right: 10px; text-align: right;">
+            <div id="user-info" class="user-info"></div>
+            <button onclick="logout()" class="logoutButton">Logout</button>
+          </div>
+        <div class="mainIntro">This is a test page. Feel free to try it out.</div>
+        <div class="navigationIntro"><b>Test booking an appointment without submitting your personal data.</b></div>
+        <a href="schedule.html" class="nav-button">Schedule Appointment</a>
+        <div class="aboutDemo"><b>About this Demo Project</b><br>
+            This website simulates a scheduling platform for a fictional company that offers consulting services in the field of embedded systems. Clients would use this interface to book appointments and discuss the technical parameters of the electronics they wish to develop.
+            Please note: the company does not exist — this is a demo project built for presentation purposes. The site could easily be extended with any additional features as needed.</div>
+        <script>
+            let timer;
+            const timeout = 10 * 60 * 1000;
+            function resetTimer() {
+                clearTimeout(timer);
+                timer = setTimeout(() => {
+                    alert('You have been logged out due to inactivity.');
+                    logout();
+                }, timeout);
+            }
+            function logout() {
+                fetch('/logout', { method: 'POST' })
+                .then(() => window.location.href = '/');
+            }
+            fetch('/me')
+                .then(res => res.json())
+                .then(data => {
+                if (data.loggedIn) {
+                    document.getElementById('user-info').innerText = `Logged in as: ${data.user.name}`;
+                    resetTimer();
+                } else {
+                    window.location.href = '/';
+                }
+            });
+            ['click', 'mousemove', 'keydown'].forEach(evt =>
+            document.addEventListener(evt, resetTimer)
+            );
+        </script>
+    </body>
+</html>

@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Schedule Appointment</title>
+  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/fullcalendar@3.10.0/dist/fullcalendar.min.css" />
+  <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/moment@2.29.1/moment.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/fullcalendar@3.10.0/dist/fullcalendar.min.js"></script>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body>
+  <div style="position: fixed; top: 10px; right: 10px; text-align: right;">
+    <div id="user-info" class="user-info"></div>
+    <button onclick="logout()" class="logoutButton">Logout</button>
+  </div>
+
+  <div class="mainIntro">Schedule an Appointment</div>
+  <p><b>Select a time slot and confirm to book it.</b></p>
+
+  <div id="calendar" style="max-width: 800px; margin: auto;"></div>
+  <div id="result" style="text-align: center; margin-top: 15px; font-weight: bold;"></div>
+  <button onclick="window.location.href='Navigation_page.html'" style="margin: 20px; padding: 10px 20px; font-size: 16px;">Back to the main page</button>
+
+  <script>
+    // User session check + timeout
+    let timer;
+    const timeout = 10 * 60 * 1000;
+    function resetTimer() {
+      clearTimeout(timer);
+      timer = setTimeout(() => {
+        alert('You have been logged out due to inactivity.');
+        logout();
+      }, timeout);
+    }
+    function logout() {
+      fetch('/logout', { method: 'POST' }).then(() => (window.location.href = '/'));
+    }
+    fetch('/me')
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.loggedIn) {
+          document.getElementById('user-info').innerText = `Logged in as: ${data.user.name}`;
+          resetTimer();
+        } else {
+          window.location.href = '/';
+        }
+      });
+    ['click', 'mousemove', 'keydown'].forEach((evt) =>
+      document.addEventListener(evt, resetTimer)
+    );
+
+    // FullCalendar konfiguráció
+    $(document).ready(function () {
+      $('#calendar').fullCalendar({
+        defaultView: 'agendaWeek',
+        defaultDate: moment().format('YYYY-MM-DD'),
+        minTime: "09:00:00",
+        maxTime: "17:00:00",
+        allDaySlot: false,
+        selectable: true,
+        selectHelper: true,
+        slotDuration: '00:30:00',
+        contentHeight: "auto",
+        header: {
+          left: 'prev,next today',
+          center: 'title'
+        },
+
+        // Foglalt időpontok betöltése
+        events: function (start, end, timezone, callback) {
+          fetch('/api/bookings')
+            .then(response => response.json())
+            .then(data => callback(data))
+            .catch(() => callback([]));
+        },
+
+        // Foglalás kezelése
+        select: function (start, end) {
+          const selectedStart = moment(start).format();
+          const selectedEnd = moment(end).format();
+
+          if (!confirm(`Do you want to book ${selectedStart} - ${selectedEnd}?`)) {
+            $('#calendar').fullCalendar('unselect');
+            return;
+          }
+
+          fetch('/api/bookings', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ start: selectedStart, end: selectedEnd })
+          })
+            .then(res => {
+              if (res.status === 201) return res.json();
+              if (res.status === 409) throw new Error("This time slot is already booked.");
+              throw new Error("Booking failed.");
+            })
+            .then(newEvent => {
+              $('#calendar').fullCalendar('renderEvent', newEvent);
+              $('#calendar').fullCalendar('unselect');
+              document.getElementById('result').style.color = 'green';
+              document.getElementById('result').textContent = 'Booking successful!';
+            })
+            .catch(err => {
+              document.getElementById('result').style.color = 'red';
+              document.getElementById('result').textContent = err.message;
+              $('#calendar').fullCalendar('unselect');
+            });
+        }
+      });
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title>MainPage</title>
+        <link rel="stylesheet" href="style.css">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    </head>
+    <body>
+        <div class="mainIntro">This is a test page. Feel free to try it out.</div>
+        <div class="mainAddress"><b>Please sign in to access the appointment scheduling system.</b></div>
+        <form action="/login" method="post" class="formLogin">
+            <label for="username" class="usernameLabel">Please use "userxy" as a user name.</label><br><br>
+            <input type="text" id="username" name="username" required><br><br>
+            <label for="password" class="passwordLabel">Please use "1234" as a password.</label><br><br>
+            <input type="password" id="password" name="password" required><br><br>
+            <button type="submit" class="submitLogin">Login</button><br>
+        </form>
+        <div id="login-error" style="color: red; margin-top: 10px; text-align: center;"></div>
+        <script>
+            const form = document.querySelector('form');
+            const errorDiv = document.getElementById('login-error');
+          
+            form.addEventListener('submit', async (e) => {
+              e.preventDefault();
+              errorDiv.textContent = ''; // előző hiba törlése
+          
+              const formData = new URLSearchParams(new FormData(form));
+              const response = await fetch('/login', {
+                method: 'POST',
+                body: formData,
+              });
+          
+              if (response.redirected) {
+                window.location.href = response.url;
+              } else if (response.status === 401) {
+                errorDiv.textContent = 'Invalid username or password. Please try again.';
+              } else {
+                errorDiv.textContent = 'Unexpected error. Please try again.';
+              }
+            });
+          </script>
+               
+    </body>
+</html>
