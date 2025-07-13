@@ -1,0 +1,17 @@
+{
+  "name": "simple_mean_project1",
+  "version": "1.0.0",
+  "description": "## Overview This is a demo web application for an embedded systems consultancy company, allowing clients to book appointments to discuss electronic development parameters.   **Note:** This company is fictional, and the site is intended solely as a demonstration.",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "dotenv": "^17.2.0",
+    "mongoose": "^8.16.3"
+  }
+}
