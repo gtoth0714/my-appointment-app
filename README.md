@@ -20,10 +20,11 @@ This is a demo web application for an embedded systems consultancy company, allo
 ## Installation & Running
 1. Clone the repository  
 2. Run `npm install` to install dependencies  
-3. Create a `.env` file in the root with: MONGO_URI=your_mongodb_connection_string
-4. Run the server: 
+3. Create a .env file in the project root. Use the included .env.example reference: cp .env.example .env
+4. Edit the .env file and fill in your own values
+5. Run the server: 
 node server.js
-5. Open `http://localhost:3000` in your browser
+6. Open `http://localhost:3000` in your browser
 
 ## Usage
 - Login with username: `userxy` and password: `1234`  
