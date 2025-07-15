@@ -18,6 +18,7 @@ This is a demo web application for an embedded systems consultancy company, allo
 - Environment variables for sensitive data
 
 ## Installation & Running
+If you'd like to run this locally:
 1. Clone the repository  
 2. Run `npm install` to install dependencies  
 3. Create a .env file in the project root. Use the included .env.example reference: cp .env.example .env
